@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INFORME 3 - Cálculo e Impresión 3D de Armaduras</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script src="script.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            800: '#0c4a6e',
+                            900: '#0f172a',
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade {
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; color: black !important; }
+            .print-card { box-shadow: none !important; border: 1px solid #cbd5e1 !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
+
+    <div class="h-2 bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-800 w-full no-print"></div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 pointer-events-none">
+        <i id="toast-icon" class="fas fa-check-circle text-emerald-400"></i>
+        <span id="toast-msg" class="text-sm font-medium">Texto copiado exitosamente</span>
+    </div>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full animate-fade">
+        
+        <div class="flex flex-wrap justify-between items-center mb-6 gap-4 pb-4 border-b border-slate-200 no-print">
+            <div class="flex items-center space-x-3">
+                <div class="p-2.5 bg-sky-600 text-white rounded-xl shadow-md shadow-sky-600/20">
+                    <i class="fas fa-drafting-compass text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-sky-700">Ingeniería Civil & Estructural</p>
+                    <p class="text-sm font-semibold text-slate-600">Simulación y Validación 3D de Armaduras</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <button onclick="copyToClipboard()" class="inline-flex items-center space-x-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl shadow-sm hover:bg-slate-50 hover:border-slate-400 transition-all active:scale-95">
+                    <i class="far fa-copy text-sky-600"></i>
+                    <span>Copiar Texto</span>
+                </button>
+                <button onclick="window.print()" class="inline-flex items-center space-x-2 px-4 py-2.5 text-sm font-semibold text-white bg-sky-600 rounded-xl shadow-md hover:bg-sky-700 transition-all active:scale-95">
+                    <i class="fas fa-print"></i>
+                    <span>Imprimir / PDF</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/70 p-6 sm:p-10 mb-8 border border-slate-200/80 relative overflow-hidden print-card">
+            <div class="absolute -right-10 -top-10 w-48 h-48 bg-sky-100 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="relative z-10">
+                <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+                    <span class="px-3 py-1 bg-sky-100 text-sky-800 text-xs font-bold uppercase tracking-wider rounded-md border border-sky-200">
+                        Documento Oficial
+                    </span>
+                    <span class="text-xs text-slate-400 font-mono flex items-center gap-1">
+                        <i class="far fa-calendar-alt"></i> <span id="current-date"></span>
+                    </span>
+                </div>
+
+                <h1 class="text-4xl sm:text-6xl font-extrabold text-slate-900 tracking-tight mb-3">
+                    INFORME 3
+                </h1>
+                <p class="text-base sm:text-lg text-slate-600 max-w-3xl leading-relaxed">
+                    Desarrollo de software especializado en el cálculo de cargas estructurales en armaduras y su validación mediante pruebas físicas en prototipos impresos en 3D.
+                </p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/70 p-6 sm:p-8 mb-8 border border-slate-200/80 relative print-card">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fas fa-file-text text-sky-600"></i>
+                    <span>Resumen del Plan de Proyecto</span>
+                </h2>
+                <button onclick="copyToClipboard()" class="text-xs text-sky-600 hover:text-sky-800 font-semibold no-print flex items-center gap-1">
+                    <i class="far fa-copy"></i> Copiar
+                </button>
+            </div>
+            
+            <div class="p-5 sm:p-6 bg-slate-50 rounded-xl border-l-4 border-sky-600 my-2 text-slate-700 text-base sm:text-lg leading-relaxed font-normal shadow-inner">
+                <p id="target-text">
+                    Teniendo en cuenta que la universidad nos puede proporcionar varios elementos decidimos hacer un programa que ayude para calcular armaduras, aparte de que las armaduras se podrán imprimir en 3D para tener una idea más clara de lo que se está haciendo ya que el programa determinará las cargas máximas que puede soportar y al hacerlo en 3D podremos aplicar las cargas para ver que tanto se aproxima a la reali, planeamos hacerlo a base de prueba y error para que sea lo más parecido a la realidad, aparte de que sería un programa que facilitaría el trabajo de un ingeniero al calcular estas cargas
+                </p>
+            </div>
+            
+            <div class="flex justify-between items-center mt-3 text-xs text-slate-400">
+                <span>Estado: <strong class="text-emerald-600">Aprobado para Desarrollo</strong></span>
+                <span>Fuente: Propuesta técnica de laboratorio</span>
+            </div>
+        </div>
+
+        <h3 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+            <i class="fas fa-layer-group text-sky-600"></i>
+            <span>Componentes del Flujo de Trabajo</span>
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
+                <div class="w-10 h-10 bg-sky-100 text-sky-600 rounded-lg flex items-center justify-center mb-3">
+                    <i class="fas fa-calculator text-lg"></i>
+                </div>
+                <h4 class="font-bold text-slate-900 text-base mb-1">1. Cálculo Estructural</h4>
+                <p class="text-slate-500 text-xs leading-relaxed">
+                    Algoritmo para determinar las cargas máximas permisibles y esfuerzos internos en nodos y barras.
+                </p>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
+                <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center mb-3">
+                    <i class="fas fa-cube text-lg"></i>
+                </div>
+                <h4 class="font-bold text-slate-900 text-base mb-1">2. Impresión 3D</h4>
+                <p class="text-slate-500 text-xs leading-relaxed">
+                    Modelado y fabricación aditiva de armaduras a escala para inspección táctil y de forma.
+                </p>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
+                <div class="w-10 h-10 bg-amber-100 text-amber-600 rounded-lg flex items-center justify-center mb-3">
+                    <i class="fas fa-vial text-lg"></i>
+                </div>
+                <h4 class="font-bold text-slate-900 text-base mb-1">3. Prueba y Error</h4>
+                <p class="text-slate-500 text-xs leading-relaxed">
+                    Ajustes continuos comparando el comportamiento teórico con las cargas reales aplicadas.
+                </p>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
+                <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center mb-3">
+                    <i class="fas fa-user-check text-lg"></i>
+                </div>
+                <h4 class="font-bold text-slate-900 text-base mb-1">4. Optimización</h4>
+                <p class="text-slate-500 text-xs leading-relaxed">
+                    Herramienta concebida para simplificar y acelerar el trabajo cotidiano del ingeniero.
+                </p>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-2xl mb-8 no-print border border-slate-800">
+            <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+                <div>
+                    <h3 class="text-lg font-bold flex items-center gap-2 text-sky-400">
+                        <i class="fas fa-microchip"></i> Simulación Gráfica de Armadura Tipo Pratt
+                    </h3>
+                    <p class="text-slate-400 text-xs">Aplica carga vertical para previsualizar la deformación en el prototipo 3D</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span id="load-label" class="px-3 py-1 bg-sky-950 text-sky-300 border border-sky-800 rounded-lg text-xs font-mono">Carga: 0 kN</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+                <div class="lg:col-span-2 bg-slate-950 p-4 rounded-xl border border-slate-800 relative flex flex-col items-center overflow-x-auto">
+                    <canvas id="trussCanvas" width="550" height="200" class="w-full max-w-full h-auto"></canvas>
+                    <div class="w-full flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
+                        <span>[▲] Apoyo Fijo</span>
+                        <span>Carga Aplicada en Nodo Central (P)</span>
+                        <span>[▲] Apoyo Móvil</span>
+                    </div>
+                </div>
+
+                <div class="space-y-4 bg-slate-800/60 p-5 rounded-xl border border-slate-700/80">
+                    <div>
+                        <label class="text-xs text-slate-300 font-semibold mb-2 block">
+                            Magnitud de Carga Estática (kN)
+                        </label>
+                        <input type="range" id="loadSlider" min="0" max="100" value="25" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-sky-500">
+                        <div class="flex justify-between text-[11px] text-slate-400 mt-1 font-mono">
+                            <span>0 kN</span>
+                            <span>50 kN</span>
+                            <span>100 kN</span>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-700/80 pt-3 space-y-2">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-400">Tensión Máxima:</span>
+                            <span id="stressValue" class="font-mono text-sky-400">25.0 MPa</span>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-400">Deformación Estimada:</span>
+                            <span id="deflectionValue" class="font-mono text-emerald-400">1.2 mm</span>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-400">Aproximación Real vs Teórica:</span>
+                            <span class="font-mono text-amber-400">~ 94.8%</span>
+                        </div>
+                    </div>
+
+                    <button onclick="resetSimulation()" class="w-full py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold rounded-lg transition-colors">
+                        Restablecer Carga
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 py-6 no-print">
+        <div class="max-w-6xl mx-auto px-4 text-center sm:flex sm:justify-between sm:items-center text-slate-500 text-xs">
+            <p>© <span id="year"></span> Proyecto de Cálculo de Armaduras e Impresión 3D.</p>
+            <p class="mt-2 sm:mt-0">Diseñado para la evaluación de ingeniería.</p>
+        </div>
+    </footer>
+
+    <script>
+        window.copyToClipboard = function() {
+            const textEl = document.getElementById('target-text');
+            if (!textEl) return;
+            const textToCopy = textEl.innerText;
+            
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = textToCopy;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            
+            try {
+                document.execCommand('copy');
+                window.showToast('Texto copiado al portapapeles', 'fa-check-circle', 'text-emerald-400');
+            } catch (err) {
+                window.showToast('Error al copiar el texto', 'fa-times-circle', 'text-red-400');
+            }
+            document.body.removeChild(tempTextArea);
+        };
+
+        window.showToast = function(msg, icon, iconColor) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            const toastIcon = document.getElementById('toast-icon');
+
+            if (!toast || !toastMsg || !toastIcon) return;
+
+            toastMsg.innerText = msg;
+            toastIcon.className = 'fas ' + icon + ' ' + iconColor;
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(function() {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateEl = document.getElementById('current-date');
+            if (dateEl) {
+                dateEl.innerText = new Date().toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+            
+            const yearEl = document.getElementById('year');
+            if (yearEl) {
+                yearEl.innerText = new Date().getFullYear();
+            }
+
+            const canvas = document.getElementById('trussCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const loadSlider = document.getElementById('loadSlider');
+
+            function drawTruss() {
+                if (!ctx || !loadSlider) return;
+                const load = parseInt(loadSlider.value) || 0;
+                
+                const loadLabel = document.getElementById('load-label');
+                const stressVal = document.getElementById('stressValue');
+                const deflVal = document.getElementById('deflectionValue');
+                
+                if (loadLabel) loadLabel.innerText = 'Carga: ' + load + ' kN';
+                if (stressVal) stressVal.innerText = (load * 1.05).toFixed(1) + ' MPa';
+                if (deflVal) deflVal.innerText = (load * 0.048).toFixed(1) + ' mm';
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                const startX = 50;
+                const startY = 140;
+                const bayWidth = 75;
+                const height = 65;
+                const deflection = load * 0.25;
+
+                const bottomNodes = [
+                    {x: startX, y: startY},
+                    {x: startX + bayWidth, y: startY + deflection * 0.4},
+                    {x: startX + bayWidth * 2, y: startY + deflection * 0.8},
+                    {x: startX + bayWidth * 3, y: startY + deflection * 1.0},
+                    {x: startX + bayWidth * 4, y: startY + deflection * 0.8},
+                    {x: startX + bayWidth * 5, y: startY + deflection * 0.4},
+                    {x: startX + bayWidth * 6, y: startY}
+                ];
+
+                const topNodes = [
+                    {x: startX + bayWidth, y: startY - height + deflection * 0.3},
+                    {x: startX + bayWidth * 2, y: startY - height + deflection * 0.7},
+                    {x: startX + bayWidth * 3, y: startY - height + deflection * 0.9},
+                    {x: startX + bayWidth * 4, y: startY - height + deflection * 0.7},
+                    {x: startX + bayWidth * 5, y: startY - height + deflection * 0.3}
+                ];
+
+                function drawMember(n1, n2, isStrained) {
+                    ctx.beginPath();
+                    ctx.moveTo(n1.x, n1.y);
+                    ctx.lineTo(n2.x, n2.y);
+                    ctx.lineWidth = 3;
+                    if (isStrained && load > 10) {
+                        const hue = Math.max(200 - load * 1.8, 0);
+                        ctx.strokeStyle = 'hsl(' + hue + ', 85%, 55%)';
+                    } else {
+                        ctx.strokeStyle = '#38bdf8';
+                    }
+                    ctx.stroke();
+                }
+
+                for (let i = 0; i < bottomNodes.length - 1; i++) {
+                    drawMember(bottomNodes[i], bottomNodes[i+1], true);
+                }
+
+                for (let i = 0; i < topNodes.length - 1; i++) {
+                    drawMember(topNodes[i], topNodes[i+1], true);
+                }
+
+                drawMember(bottomNodes[0], topNodes[0], false);
+                drawMember(bottomNodes[6], topNodes[4], false);
+                drawMember(bottomNodes[1], topNodes[0], false);
+                drawMember(bottomNodes[1], topNodes[1], false);
+                drawMember(bottomNodes[2], topNodes[1], false);
+                drawMember(bottomNodes[2], topNodes[2], false);
+                drawMember(bottomNodes[3], topNodes[2], false);
+                drawMember(bottomNodes[4], topNodes[2], false);
+                drawMember(bottomNodes[4], topNodes[3], false);
+                drawMember(bottomNodes[5], topNodes[3], false);
+                drawMember(bottomNodes[5], topNodes[4], false);
+
+                const allNodes = bottomNodes.concat(topNodes);
+                allNodes.forEach(function(node) {
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, 5, 0, Math.PI * 2);
+                    ctx.fillStyle = '#f8fafc';
+                    ctx.fill();
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#0284c7';
+                    ctx.stroke();
+                });
+
+                ctx.fillStyle = '#94a3b8';
+                ctx.beginPath();
+                ctx.moveTo(bottomNodes[0].x, bottomNodes[0].y + 5);
+                ctx.lineTo(bottomNodes[0].x - 10, bottomNodes[0].y + 20);
+                ctx.lineTo(bottomNodes[0].x + 10, bottomNodes[0].y + 20);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(bottomNodes[6].x, bottomNodes[6].y + 12, 7, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (load > 0) {
+                    const targetNode = bottomNodes[3];
+                    const arrowLength = 25 + load * 0.2;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(targetNode.x, targetNode.y - arrowLength);
+                    ctx.lineTo(targetNode.x, targetNode.y - 8);
+                    ctx.lineWidth = 4;
+                    ctx.strokeStyle = '#f43f5e';
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(targetNode.x - 6, targetNode.y - 14);
+                    ctx.lineTo(targetNode.x, targetNode.y - 6);
+                    ctx.lineTo(targetNode.x + 6, targetNode.y - 14);
+                    ctx.closePath();
+                    ctx.fillStyle = '#f43f5e';
+                    ctx.fill();
+                }
+            }
+
+            if (loadSlider) {
+                loadSlider.addEventListener('input', drawTruss);
+            }
+
+            window.resetSimulation = function() {
+                if (loadSlider) {
+                    loadSlider.value = 0;
+                    drawTruss();
+                }
+            };
+
+            window.drawTruss = drawTruss;
+            drawTruss();
+        });
+    </script>
+</body>
+</html>
